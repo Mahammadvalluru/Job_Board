@@ -1,0 +1,64 @@
+.job-card {
+  background: #fff;
+  border: 1px solid var(--color-gray-200, #E5E7EB);
+  border-radius: var(--radius-lg, 12px);
+  padding: 1.25rem;
+  transition: box-shadow 0.2s, transform 0.2s;
+  display: flex;
+  flex-direction: column;
+  gap: 0.875rem;
+}
+.job-card:hover {
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
+  transform: translateY(-2px);
+}
+.job-card__header {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+}
+.job-card__logo {
+  width: 48px; height: 48px;
+  border-radius: var(--radius-md, 8px);
+  display: flex; align-items: center; justify-content: center;
+  color: #fff; font-weight: 700; font-size: 1.25rem;
+  flex-shrink: 0;
+}
+.job-card__meta { flex: 1; min-width: 0; }
+.job-card__title {
+  font-size: 1.0625rem; font-weight: 700;
+  color: var(--color-gray-900, #111827);
+  text-decoration: none; display: block;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.job-card__title:hover { color: var(--color-primary, #4F46E5); }
+.job-card__company {
+  font-size: 0.875rem; color: var(--color-gray-500, #6B7280);
+  text-decoration: none;
+}
+.job-card__company:hover { color: var(--color-primary, #4F46E5); text-decoration: underline; }
+.job-card__bookmark {
+  background: none; border: none; font-size: 1.5rem; cursor: pointer;
+  color: var(--color-gray-400, #9CA3AF); padding: 0; line-height: 1;
+  transition: color 0.2s;
+}
+.job-card__bookmark--active { color: var(--color-primary, #4F46E5); }
+.job-card__bookmark:hover { color: var(--color-primary, #4F46E5); }
+.job-card__info {
+  display: flex; flex-wrap: wrap; gap: 0.75rem;
+  font-size: 0.875rem; color: var(--color-gray-600, #4B5563);
+}
+.job-card__tags {
+  display: flex; flex-wrap: wrap; gap: 0.375rem;
+}
+.job-card__footer {
+  display: flex; align-items: center; justify-content: space-between;
+  padding-top: 0.75rem;
+  border-top: 1px solid var(--color-gray-100, #F3F4F6);
+}
+.job-card__time { font-size: 0.8125rem; color: var(--color-gray-500, #6B7280); }
+.job-card__link {
+  font-size: 0.875rem; font-weight: 600;
+  color: var(--color-primary, #4F46E5); text-decoration: none;
+}
+.job-card__link:hover { text-decoration: underline; }

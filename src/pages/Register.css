@@ -1,0 +1,116 @@
+.register-page {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: calc(100vh - var(--header-height) - 100px);
+  padding: var(--space-8) var(--space-4);
+  background-color: var(--bg-secondary);
+}
+
+.register-card {
+  background: var(--bg-primary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-xl);
+  padding: var(--space-8);
+  width: 100%;
+  max-width: 540px;
+  box-shadow: var(--shadow-xl);
+  animation: slideUp var(--transition-slow);
+}
+
+.register-card__header {
+  text-align: center;
+  margin-bottom: var(--space-6);
+}
+
+.register-card__logo-icon {
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  width: 48px;
+  height: 48px;
+  background-color: var(--color-accent-bg);
+  color: var(--color-accent);
+  font-size: var(--text-2xl);
+  border-radius: var(--radius-lg);
+  margin-bottom: var(--space-4);
+}
+
+.register-card__header h2 {
+  font-size: var(--text-2xl);
+  color: var(--text-primary);
+  margin-bottom: var(--space-2);
+}
+
+.register-card__header p {
+  color: var(--text-secondary);
+  font-size: var(--text-sm);
+}
+
+.role-selector {
+  display: flex;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  padding: var(--space-1);
+  margin-bottom: var(--space-6);
+}
+
+.role-tab {
+  flex: 1;
+  text-align: center;
+  padding: var(--space-3) var(--space-4);
+  font-weight: var(--font-semibold);
+  font-size: var(--text-sm);
+  color: var(--text-secondary);
+  border-radius: var(--radius-md);
+  transition: all var(--transition-base);
+}
+
+.role-tab--active {
+  background: var(--bg-primary);
+  color: var(--color-accent);
+  box-shadow: var(--shadow-sm);
+}
+
+.register-card__form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.form-row {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+@media (min-width: 640px) {
+  .form-row {
+    flex-direction: row;
+  }
+  .flex-1 {
+    flex: 1;
+    min-width: 0;
+  }
+}
+
+.register-card__footer {
+  text-align: center;
+  margin-top: var(--space-6);
+  font-size: var(--text-sm);
+  color: var(--text-secondary);
+}
+
+.register-card__footer a {
+  color: var(--color-accent);
+  font-weight: var(--font-semibold);
+}
+
+.register-card__footer a:hover {
+  text-decoration: underline;
+}
+
+.mt-2 {
+  margin-top: var(--space-2);
+}

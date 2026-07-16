@@ -1,0 +1,89 @@
+.post-job-page {
+  padding: var(--space-4) 0 var(--space-8);
+}
+
+.post-job-page__header {
+  margin-bottom: var(--space-8);
+}
+
+.post-job-page__header h1 {
+  font-size: var(--text-3xl);
+  color: var(--text-primary);
+  margin-bottom: var(--space-2);
+}
+
+.post-job-page__header p {
+  color: var(--text-secondary);
+}
+
+.post-job-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--space-8);
+}
+
+@media (min-width: 1024px) {
+  .post-job-grid {
+    grid-template-columns: 1.4fr 1fr;
+  }
+}
+
+.form-section {
+  background: var(--bg-primary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-xl);
+  padding: var(--space-6);
+  margin-bottom: var(--space-6);
+  box-shadow: var(--shadow-sm);
+}
+
+.form-section h3 {
+  font-size: var(--text-lg);
+  color: var(--text-primary);
+  margin-bottom: var(--space-4);
+  border-bottom: 1px solid var(--border-color);
+  padding-bottom: var(--space-2);
+}
+
+.list-adder {
+  display: flex;
+  gap: var(--space-3);
+  align-items: flex-end;
+}
+
+.bullet-points-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding-left: 0;
+}
+
+.bullet-points-list li {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  padding: var(--space-2) var(--space-4);
+  border-radius: var(--radius-md);
+  font-size: var(--text-sm);
+  color: var(--text-primary);
+  gap: var(--space-4);
+}
+
+.bullet-points-list li button {
+  background: none;
+  border: none;
+  font-size: var(--text-xs);
+  cursor: pointer;
+  opacity: 0.5;
+  transition: opacity var(--transition-fast);
+}
+
+.bullet-points-list li button:hover {
+  opacity: 1;
+}
+
+.post-actions {
+  margin-top: var(--space-4);
+}

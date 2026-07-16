@@ -1,0 +1,89 @@
+.job-search__header {
+  background: var(--bg-primary);
+  padding: var(--space-6) 0;
+  border-bottom: 1px solid var(--border-color);
+}
+.job-search__layout {
+  display: flex;
+  gap: var(--space-6);
+  padding: var(--space-6) 0;
+  align-items: flex-start;
+}
+.job-search__filter-toggle {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-4);
+  background: var(--bg-primary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  font-size: var(--text-sm);
+  font-weight: var(--font-medium);
+  cursor: pointer;
+  margin-bottom: var(--space-4);
+}
+.job-search__filter-badge {
+  background: var(--color-accent);
+  color: white;
+  font-size: var(--text-xs);
+  padding: 2px 8px;
+  border-radius: var(--radius-full);
+}
+@media (min-width: 768px) {
+  .job-search__filter-toggle { display: none; }
+}
+.job-search__sidebar {
+  display: none;
+  width: 280px;
+  flex-shrink: 0;
+}
+.job-search__sidebar--open { display: block; }
+@media (min-width: 768px) {
+  .job-search__sidebar { display: block; }
+}
+.job-search__results { flex: 1; min-width: 0; }
+.job-search__results-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--space-4);
+  flex-wrap: wrap;
+  gap: var(--space-3);
+}
+.job-search__count {
+  font-size: var(--text-sm);
+  color: var(--text-secondary);
+  font-weight: var(--font-medium);
+}
+.job-search__loading {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+.job-search__list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.job-search__chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  align-items: center;
+  margin-bottom: var(--space-4);
+}
+
+.job-search__clear-chips {
+  font-size: var(--text-sm);
+  color: var(--color-error);
+  font-weight: var(--font-medium);
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: var(--space-1) var(--space-2);
+}
+
+.job-search__clear-chips:hover {
+  text-decoration: underline;
+}

@@ -1,0 +1,331 @@
+/* ==========================================================
+   Seeker Dashboard — Dashboard.css
+   ========================================================== */
+
+.seeker-dashboard {
+  padding: var(--space-6) 0;
+  animation: fadeIn var(--transition-slow);
+}
+
+/* ── Welcome Header ─────────────────────────────────────── */
+.seeker-dashboard__welcome {
+  margin-bottom: var(--space-8);
+}
+
+.seeker-dashboard__greeting {
+  font-size: var(--text-2xl);
+  font-weight: var(--font-bold);
+  color: var(--text-primary);
+  margin-bottom: var(--space-1);
+}
+
+.seeker-dashboard__subtext {
+  font-size: var(--text-sm);
+  color: var(--text-secondary);
+}
+
+/* ── Stats Row ──────────────────────────────────────────── */
+.seeker-dashboard__stats {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-4);
+  margin-bottom: var(--space-8);
+}
+
+.seeker-dashboard__stat-card {
+  background: var(--bg-primary);
+  border-radius: var(--radius-lg);
+  padding: var(--space-5);
+  border: 1px solid var(--border-color);
+  transition: transform var(--transition-fast), box-shadow var(--transition-fast);
+  position: relative;
+  overflow: hidden;
+}
+
+.seeker-dashboard__stat-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+}
+
+.seeker-dashboard__stat-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+
+.seeker-dashboard__stat-card--blue::before {
+  background: var(--color-accent);
+}
+.seeker-dashboard__stat-card--amber::before {
+  background: var(--color-warning);
+}
+.seeker-dashboard__stat-card--purple::before {
+  background: var(--color-purple);
+}
+.seeker-dashboard__stat-card--green::before {
+  background: var(--color-success);
+}
+
+.seeker-dashboard__stat-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: var(--radius-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: var(--text-lg);
+  margin-bottom: var(--space-3);
+}
+
+.seeker-dashboard__stat-card--blue .seeker-dashboard__stat-icon {
+  background: var(--color-accent-bg);
+  color: var(--color-accent);
+}
+.seeker-dashboard__stat-card--amber .seeker-dashboard__stat-icon {
+  background: var(--color-warning-light);
+  color: var(--color-warning-dark);
+}
+.seeker-dashboard__stat-card--purple .seeker-dashboard__stat-icon {
+  background: var(--color-purple-light);
+  color: var(--color-purple);
+}
+.seeker-dashboard__stat-card--green .seeker-dashboard__stat-icon {
+  background: var(--color-success-light);
+  color: var(--color-success-dark);
+}
+
+.seeker-dashboard__stat-value {
+  font-size: var(--text-3xl);
+  font-weight: var(--font-bold);
+  color: var(--text-primary);
+  line-height: 1;
+  margin-bottom: var(--space-1);
+}
+
+.seeker-dashboard__stat-label {
+  font-size: var(--text-sm);
+  color: var(--text-secondary);
+  font-weight: var(--font-medium);
+}
+
+/* ── Section ────────────────────────────────────────────── */
+.seeker-dashboard__section {
+  margin-bottom: var(--space-8);
+}
+
+.seeker-dashboard__section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--space-4);
+}
+
+.seeker-dashboard__section-title {
+  font-size: var(--text-lg);
+  font-weight: var(--font-semibold);
+  color: var(--text-primary);
+}
+
+.seeker-dashboard__section-link {
+  font-size: var(--text-sm);
+  color: var(--color-accent);
+  font-weight: var(--font-medium);
+  text-decoration: none;
+  transition: color var(--transition-fast);
+}
+
+.seeker-dashboard__section-link:hover {
+  color: var(--color-accent-hover);
+}
+
+/* ── Recent Applications List ───────────────────────────── */
+.seeker-dashboard__applications-list {
+  background: var(--bg-primary);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border-color);
+  overflow: hidden;
+}
+
+.seeker-dashboard__application-item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-4);
+  border-bottom: 1px solid var(--border-color);
+  cursor: pointer;
+  transition: background var(--transition-fast);
+  text-decoration: none;
+  color: inherit;
+}
+
+.seeker-dashboard__application-item:last-child {
+  border-bottom: none;
+}
+
+.seeker-dashboard__application-item:hover {
+  background: var(--bg-secondary);
+}
+
+.seeker-dashboard__application-logo {
+  width: 36px;
+  height: 36px;
+  border-radius: var(--radius-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: var(--text-sm);
+  font-weight: var(--font-bold);
+  color: white;
+  flex-shrink: 0;
+}
+
+.seeker-dashboard__application-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.seeker-dashboard__application-title {
+  font-size: var(--text-sm);
+  font-weight: var(--font-semibold);
+  color: var(--text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.seeker-dashboard__application-company {
+  font-size: var(--text-xs);
+  color: var(--text-secondary);
+}
+
+.seeker-dashboard__application-meta {
+  text-align: right;
+  flex-shrink: 0;
+}
+
+.seeker-dashboard__application-date {
+  display: block;
+  font-size: var(--text-xs);
+  color: var(--text-tertiary);
+  margin-top: var(--space-1);
+}
+
+/* ── Quick Links ────────────────────────────────────────── */
+.seeker-dashboard__quick-links {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--space-3);
+}
+
+.seeker-dashboard__quick-link {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-4);
+  background: var(--bg-primary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  text-decoration: none;
+  color: var(--text-primary);
+  font-weight: var(--font-medium);
+  font-size: var(--text-sm);
+  transition: all var(--transition-fast);
+}
+
+.seeker-dashboard__quick-link:hover {
+  border-color: var(--color-accent);
+  background: var(--color-accent-bg);
+  color: var(--color-accent);
+  transform: translateX(4px);
+}
+
+.seeker-dashboard__quick-link-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: var(--radius-md);
+  background: var(--bg-tertiary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: var(--text-lg);
+  flex-shrink: 0;
+}
+
+.seeker-dashboard__quick-link:hover .seeker-dashboard__quick-link-icon {
+  background: var(--color-accent-bg);
+}
+
+.seeker-dashboard__quick-link-arrow {
+  margin-left: auto;
+  color: var(--text-tertiary);
+  transition: transform var(--transition-fast);
+}
+
+.seeker-dashboard__quick-link:hover .seeker-dashboard__quick-link-arrow {
+  transform: translateX(4px);
+  color: var(--color-accent);
+}
+
+/* ── Error State ────────────────────────────────────────── */
+.seeker-dashboard__error {
+  background: var(--color-error-light);
+  border: 1px solid var(--color-error);
+  border-radius: var(--radius-lg);
+  padding: var(--space-4);
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  margin-bottom: var(--space-6);
+}
+
+.seeker-dashboard__error-text {
+  flex: 1;
+  font-size: var(--text-sm);
+  color: var(--color-error-dark);
+}
+
+/* ── Skeleton States ────────────────────────────────────── */
+.seeker-dashboard__stat-skeleton {
+  background: var(--bg-primary);
+  border-radius: var(--radius-lg);
+  padding: var(--space-5);
+  border: 1px solid var(--border-color);
+}
+
+.seeker-dashboard__app-skeleton {
+  padding: var(--space-4);
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  border-bottom: 1px solid var(--border-color);
+}
+
+.seeker-dashboard__app-skeleton:last-child {
+  border-bottom: none;
+}
+
+/* ── Responsive ─────────────────────────────────────────── */
+@media (min-width: 640px) {
+  .seeker-dashboard__quick-links {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (min-width: 768px) {
+  .seeker-dashboard__stats {
+    grid-template-columns: repeat(4, 1fr);
+  }
+
+  .seeker-dashboard__greeting {
+    font-size: var(--text-3xl);
+  }
+}
+
+@media (min-width: 1024px) {
+  .seeker-dashboard {
+    padding: var(--space-8) 0;
+  }
+}

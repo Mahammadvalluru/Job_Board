@@ -1,0 +1,77 @@
+/* ── Chip Component ────────────────────────────────────────── */
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  font-weight: var(--font-medium);
+  border-radius: var(--radius-full);
+  white-space: nowrap;
+  line-height: 1;
+  transition: background-color var(--transition-fast), color var(--transition-fast);
+}
+
+/* —— Sizes —— */
+.chip--sm {
+  padding: 2px var(--space-2);
+  font-size: var(--text-xs);
+  height: 22px;
+}
+
+.chip--md {
+  padding: var(--space-1) var(--space-3);
+  font-size: var(--text-sm);
+  height: 28px;
+}
+
+/* —— Variants —— */
+.chip--default {
+  background-color: var(--bg-tertiary);
+  color: var(--text-secondary);
+}
+
+.chip--primary {
+  background-color: var(--color-accent-bg);
+  color: var(--color-accent);
+}
+
+.chip--success {
+  background-color: var(--color-success-light);
+  color: var(--color-success-dark);
+}
+
+.chip--warning {
+  background-color: var(--color-warning-light);
+  color: var(--color-warning-dark);
+}
+
+.chip--error {
+  background-color: var(--color-error-light);
+  color: var(--color-error-dark);
+}
+
+/* —— Remove button —— */
+.chip__remove {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  border-radius: var(--radius-full);
+  cursor: pointer;
+  opacity: 0.7;
+  transition: opacity var(--transition-fast), background-color var(--transition-fast);
+  margin-left: 2px;
+  margin-right: -4px;
+  flex-shrink: 0;
+}
+
+.chip__remove:hover {
+  opacity: 1;
+  background-color: rgba(0, 0, 0, 0.1);
+}
+
+.chip__remove:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 1px;
+}

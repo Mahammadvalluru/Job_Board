@@ -1,0 +1,13 @@
+.page-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem 1.5rem;
+  min-height: calc(100vh - 60px);
+}
+.page-container--narrow { max-width: 720px; }
+.page-container--wide { max-width: 1400px; }
+.page-container--full { max-width: 100%; }
+
+@media (max-width: 640px) {
+  .page-container { padding: 1rem; }
+}

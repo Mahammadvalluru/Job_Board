@@ -1,0 +1,137 @@
+// ─── Auth Service ─────────────────────────────────────────────────────────────
+// Handles authentication, registration, and profile management via localStorage.
+
+import { getData, setData, simulateDelay, generateId } from './api';
+
+/**
+ * Strip sensitive fields (password) from a user object before returning.
+ */
+function sanitizeUser(user) {
+  if (!user) return null;
+  const { password, ...safeUser } = user;
+  return safeUser;
+}
+
+export const authService = {
+  /**
+   * Authenticate a user by email and password.
+   * Stores the session in localStorage as 'currentUser'.
+   */
+  async login(email, password) {
+    await simulateDelay();
+
+    const users = getData('users') || [];
+    const user = users.find(
+      (u) => u.email.toLowerCase() === email.toLowerCase() && u.password === password
+    );
+
+    if (!user) {
+      throw new Error('Invalid email or password. Please try again.');
+    }
+
+    const safeUser = sanitizeUser(user);
+    setData('currentUser', safeUser);
+    return safeUser;
+  },
+
+  /**
+   * Register a new user.
+   * If the role is 'employer' and companyName is provided, a new company is created.
+   */
+  async register({ email, password, name, role, companyName = '', phone = '', location = '' }) {
+    await simulateDelay();
+
+    const users = getData('users') || [];
+
+    // Check for duplicate email
+    if (users.some((u) => u.email.toLowerCase() === email.toLowerCase())) {
+      throw new Error('An account with this email already exists.');
+    }
+
+    let companyId = null;
+
+    // If employer, create a company entry
+    if (role === 'employer' && companyName) {
+      const companies = getData('companies') || [];
+      const newCompany = {
+        id: generateId('c'),
+        name: companyName,
+        logo: null,
+        industry: '',
+        size: '',
+        founded: new Date().getFullYear(),
+        website: '',
+        description: '',
+        location: location || '',
+        benefits: [],
+      };
+      companies.push(newCompany);
+      setData('companies', companies);
+      companyId = newCompany.id;
+    }
+
+    const newUser = {
+      id: generateId('u'),
+      email,
+      password,
+      name,
+      role,
+      phone,
+      location,
+      bio: '',
+      avatarColor: `#${Math.floor(Math.random() * 0xffffff).toString(16).padStart(6, '0')}`,
+      ...(role === 'seeker'
+        ? { skills: [], experience: [], education: [], resumeFileName: '' }
+        : { companyId, title: '' }),
+    };
+
+    users.push(newUser);
+    setData('users', users);
+
+    const safeUser = sanitizeUser(newUser);
+    setData('currentUser', safeUser);
+    return safeUser;
+  },
+
+  /**
+   * Log out the current user.
+   */
+  async logout() {
+    localStorage.removeItem('currentUser');
+  },
+
+  /**
+   * Get the currently logged-in user from localStorage.
+   * Returns null if no session exists.
+   */
+  getCurrentUser() {
+    return getData('currentUser');
+  },
+
+  /**
+   * Update a user's profile.
+   * Updates both the users array and the currentUser session.
+   */
+  async updateProfile(userId, data) {
+    await simulateDelay();
+
+    const users = getData('users') || [];
+    const idx = users.findIndex((u) => u.id === userId);
+    if (idx === -1) throw new Error('User not found');
+
+    // Prevent overwriting critical fields
+    const { id, email, password, role, ...updatableFields } = data;
+    users[idx] = { ...users[idx], ...updatableFields };
+    setData('users', users);
+
+    // Update the session too
+    const currentUser = getData('currentUser');
+    if (currentUser && currentUser.id === userId) {
+      const updatedSession = sanitizeUser(users[idx]);
+      setData('currentUser', updatedSession);
+      return updatedSession;
+    }
+
+    return sanitizeUser(users[idx]);
+  },
+};

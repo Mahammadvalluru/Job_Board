@@ -1,0 +1,23 @@
+.filter-bar {
+  background: #fff;
+  border: 1px solid var(--color-gray-200, #E5E7EB);
+  border-radius: var(--radius-lg, 12px);
+  padding: 1.25rem;
+}
+.filter-bar__header {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 1rem;
+}
+.filter-bar__title {
+  font-size: 1rem; font-weight: 700; margin: 0;
+  color: var(--color-gray-800, #1F2937);
+}
+.filter-bar__clear {
+  background: none; border: none; font-size: 0.8125rem;
+  color: var(--color-primary, #4F46E5); cursor: pointer;
+  font-weight: 500; padding: 0; font-family: inherit;
+}
+.filter-bar__clear:hover { text-decoration: underline; }
+.filter-bar__filters {
+  display: flex; flex-direction: column; gap: 1rem;
+}
