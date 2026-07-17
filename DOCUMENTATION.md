@@ -91,19 +91,25 @@ JobFlow is a modern, responsive, full-featured Job Board application designed to
 
 ## 🛠 Technical Architecture
 
-### Data Layer & Services
-JobFlow implements a mock API service layer storing structured JSON objects in `localStorage`. This architecture mimics a real production API by using Promises and simulated network delays:
-* [api.js](file:///c:/Users/vallu/Downloads/StudentManagementSystem/Job_Board/src/services/api.js): Sets up global `getData`, `setData` storage keys, and provides a simulated network delay with random jitter (base 300ms) to trigger loading skeletons.
-* [authService.js](file:///c:/Users/vallu/Downloads/StudentManagementSystem/Job_Board/src/services/authService.js): Registers user profiles, maps company profiles to employer accounts, and handles session caching under `currentUser`.
-* [jobService.js](file:///c:/Users/vallu/Downloads/StudentManagementSystem/Job_Board/src/services/jobService.js): Searches and filters job listings with pagination page parameters, scores job similarity (matching categories, locations, and levels), and records listing views.
-* [applicationService.js](file:///c:/Users/vallu/Downloads/StudentManagementSystem/Job_Board/src/services/applicationService.js): Prevents duplicate submissions, retrieves applications with fully pre-populated job and company details, compiles aggregate applicant stats, and updates timelines.
+### Live Multi-Portal Job Aggregator & Backend Worker
+JobFlow integrates a hybrid data architecture combining persistent mock local listings with a live Cloudflare Worker proxy aggregator:
+* **Cloudflare Worker Backend**: Located at [worker/src/index.js](file:///c:/Users/vallu/Downloads/StudentManagementSystem/Job_Board/worker/src/index.js). When VITE_CLOUDFLARE_WORKER_URL is configured, the frontend queries the worker's `/api/jobs` search endpoint.
+* **Adzuna API Integration**: The worker connects to the live Adzuna India API (country: `in`) using the configured application credentials (`wrangler.toml`). It fetches real-time jobs in India from multiple portals.
+* **Portal Aggregation Source Badges**: During results mapping, the worker extracts the original aggregation source (e.g. `Indeed`, `Naukri`, `LinkedIn`, `Shine`, `Careers Page`) based on the redirect URL domain. The frontend displays this source next to the timestamp in [JobCard.jsx](file:///c:/Users/vallu/Downloads/StudentManagementSystem/Job_Board/src/components/shared/JobCard.jsx) and inside the header of [JobDetail.jsx](file:///c:/Users/vallu/Downloads/StudentManagementSystem/Job_Board/src/pages/JobDetail.jsx).
+* **Worker Details Caching**: Implements a global, in-memory `JOBS_CACHE` map in the worker. When a user requests job details for a specific Adzuna listing (`/api/jobs/:id`), the worker serves the details directly from the search cache, preventing fallbacks and ensuring real-time descriptions match search results.
+* **External Apply Redirection**: If a listing is an aggregated job, the **Apply Now** button dynamically triggers an external browser window redirection (`window.open(url, '_blank')`) using the click-tracking URL mapped from Adzuna.
 
-### State Management & Routing
-State is managed using React Contexts and hooks:
+### Google Mock Popup Chooser & Token Verification
+* **Account Chooser Popup**: The Google Login/Register option opens a simulated Google account chooser window located at [mock-google-login.html](file:///c:/Users/vallu/Downloads/StudentManagementSystem/Job_Board/public/mock-google-login.html). Users can select one of three preconfigured mock accounts (Sarah Johnson, Jessica Smith, Alex Mercer) or input custom credentials.
+* **Secure postMessage Exchange**: Upon selection, the popup sends a `GOOGLE_AUTH_SUCCESS` message containing mock Google credentials to the main window.
+* **Worker Verification Proxy**: The frontend intercepts the credential and calls `/api/auth/google` on the Cloudflare Worker backend. The worker validates the mock token format and returns the verified profile, syncing it securely into the local auth flow.
+
+### State Management, Routing & Session Security
 * [AuthContext.jsx](file:///c:/Users/vallu/Downloads/StudentManagementSystem/Job_Board/src/context/AuthContext.jsx): Handles global user states, logs, registration profiles, and handles route loading screens.
+* [authService.js](file:///c:/Users/vallu/Downloads/StudentManagementSystem/Job_Board/src/services/authService.js): Manages active user logins. Migrated from `localStorage` to `sessionStorage` for active session caching; closing the browser window or tab automatically logs out the user.
 * [BookmarkContext.jsx](file:///c:/Users/vallu/Downloads/StudentManagementSystem/Job_Board/src/context/BookmarkContext.jsx): Manages bookmark syncing, guest merges, and heart toggles.
 * [ToastContext.jsx](file:///c:/Users/vallu/Downloads/StudentManagementSystem/Job_Board/src/context/ToastContext.jsx): Controls sliding alert toasts for instant user action feedback.
-* **Routing**: Set up in `App.jsx` using `react-router-dom` with guards (`ProtectedRoute` and `GuestRoute`) blocking unauthorized role routes and redirecting guests to the login page.
+* **Routing Guards**: Set up in `App.jsx` using `react-router-dom` with guards (`ProtectedRoute` and `GuestRoute`). The root route `/` is wrapped under `ProtectedRoute`, immediately redirecting unauthenticated visitors to `/login` to secure the page layout.
 
 ---
 
