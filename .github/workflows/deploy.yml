@@ -29,16 +29,20 @@ jobs:
       - name: Lint and Build Check
         run: npm run build
 
+      - name: Prepare Vercel Token
+        if: github.event_name == 'push'
+        run: echo "VERCEL_TOKEN=$(echo '${{ secrets.VERCEL_TOKEN }}' | tr -d '\r\n')" >> "$GITHUB_ENV"
+
       - name: Pull Vercel Project Information
         if: github.event_name == 'push'
-        run: npx vercel pull --yes --environment=production --token=${{ secrets.VERCEL_TOKEN }}
+        run: npx vercel pull --yes --environment=production --token="$VERCEL_TOKEN"
         env:
           VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
           VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
 
       - name: Build Vercel Production Artifacts
         if: github.event_name == 'push'
-        run: npx vercel build --prod --token=${{ secrets.VERCEL_TOKEN }}
+        run: npx vercel build --prod --token="$VERCEL_TOKEN"
         env:
           VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
           VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
@@ -47,7 +51,7 @@ jobs:
         if: github.event_name == 'push'
         id: deploy
         run: |
-          DEPLOY_URL=$(npx vercel deploy --prebuilt --prod --token=${{ secrets.VERCEL_TOKEN }})
+          DEPLOY_URL=$(npx vercel deploy --prebuilt --prod --token="$VERCEL_TOKEN")
           echo "url=$DEPLOY_URL" >> $GITHUB_OUTPUT
         env:
           VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
