@@ -28,7 +28,7 @@ jobs:
         run: npm ci
 
       - name: Lint and Build Check
-        run: npm run build
+        run: npm run build || (echo "=== BUILD DIAGNOSTICS ===" && npx tsc && exit 1)
 
       - name: Prepare Vercel Token
         if: github.event_name == 'push'
