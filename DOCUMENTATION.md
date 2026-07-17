@@ -99,10 +99,10 @@ JobFlow integrates a hybrid data architecture combining persistent mock local li
 * **Worker Details Caching**: Implements a global, in-memory `JOBS_CACHE` map in the worker. When a user requests job details for a specific Adzuna listing (`/api/jobs/:id`), the worker serves the details directly from the search cache, preventing fallbacks and ensuring real-time descriptions match search results.
 * **External Apply Redirection**: If a listing is an aggregated job, the **Apply Now** button dynamically triggers an external browser window redirection (`window.open(url, '_blank')`) using the click-tracking URL mapped from Adzuna.
 
-### Google Mock Popup Chooser & Token Verification
-* **Account Chooser Popup**: The Google Login/Register option opens a simulated Google account chooser window located at [mock-google-login.html](file:///c:/Users/vallu/Downloads/StudentManagementSystem/Job_Board/public/mock-google-login.html). Users can select one of three preconfigured mock accounts (Sarah Johnson, Jessica Smith, Alex Mercer) or input custom credentials.
-* **Secure postMessage Exchange**: Upon selection, the popup sends a `GOOGLE_AUTH_SUCCESS` message containing mock Google credentials to the main window.
-* **Worker Verification Proxy**: The frontend intercepts the credential and calls `/api/auth/google` on the Cloudflare Worker backend. The worker validates the mock token format and returns the verified profile, syncing it securely into the local auth flow.
+### Google Identity Services (GSI) & Token Verification
+* **Real Google Sign-In**: The Google Login/Register features use the official Google Identity Services client SDK loaded via `https://accounts.google.com/gsi/client`.
+* **Standard OAuth Flow**: When the Google Sign-In button is rendered, it initiates a secure popup chooser managed by Google. On successful sign-in, Google returns a real ID token (JWT) to the frontend application.
+* **Worker Verification Proxy**: The frontend intercepts this token and sends a POST request to `/api/auth/google` on the Cloudflare Worker backend. The worker securely retrieves token details via `https://oauth2.googleapis.com/tokeninfo?id_token=...` to extract the user's real email, name, and profile picture, seamlessly logging them into the JobFlow platform.
 
 ### State Management, Routing & Session Security
 * [AuthContext.jsx](file:///c:/Users/vallu/Downloads/StudentManagementSystem/Job_Board/src/context/AuthContext.jsx): Handles global user states, logs, registration profiles, and handles route loading screens.
@@ -117,7 +117,7 @@ JobFlow integrates a hybrid data architecture combining persistent mock local li
 
 The project is configured for automated testing, building, and deployment using GitHub Actions:
 * **Workflow File**: Located at [.github/workflows/deploy.yml](file:///c:/Users/vallu/Downloads/StudentManagementSystem/Job_Board/.github/workflows/deploy.yml).
-* **Triggers**: Executes on pushes and pull requests to `main` or `master`.
+* **Triggers**: Executes on pushes and pull requests to `main` or `master`, as well as manual triggers via `workflow_dispatch`.
 * **CI Build Steps**:
   1. Checks out repository files.
   2. Sets up Node.js environment (v20) caching dependencies.
