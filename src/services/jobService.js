@@ -70,6 +70,31 @@ export const jobService = {
     page = 1,
     pageSize = 10,
   } = {}) {
+    try {
+      const workerUrl = import.meta.env.VITE_CLOUDFLARE_WORKER_URL || 'http://localhost:8787';
+      const response = await fetch(
+        `${workerUrl}/api/jobs?keyword=${encodeURIComponent(keyword)}&location=${encodeURIComponent(location)}&page=${page}`
+      );
+      if (response.ok) {
+        const data = await response.json();
+        let filteredJobs = data.jobs;
+        if (type) filteredJobs = filteredJobs.filter(j => j.type === type);
+        if (experienceLevel) filteredJobs = filteredJobs.filter(j => j.experienceLevel === experienceLevel);
+        if (category) filteredJobs = filteredJobs.filter(j => j.category === category);
+        if (salaryMin != null) filteredJobs = filteredJobs.filter(j => !j.salaryMax || j.salaryMax >= salaryMin);
+        if (salaryMax != null) filteredJobs = filteredJobs.filter(j => !j.salaryMin || j.salaryMin <= salaryMax);
+        
+        return {
+          jobs: filteredJobs,
+          total: data.total,
+          page: data.page,
+          totalPages: data.totalPages
+        };
+      }
+    } catch (err) {
+      console.warn("Cloudflare Job Aggregator request failed, falling back to local storage:", err);
+    }
+
     await simulateDelay();
 
     const allJobs = getData('jobs') || [];
@@ -140,6 +165,17 @@ export const jobService = {
    * Get a single job by ID, with company info populated.
    */
   async getJob(id) {
+    try {
+      const workerUrl = import.meta.env.VITE_CLOUDFLARE_WORKER_URL || 'http://localhost:8787';
+      const response = await fetch(`${workerUrl}/api/jobs/${encodeURIComponent(id)}`);
+      if (response.ok) {
+        const job = await response.json();
+        return job;
+      }
+    } catch (err) {
+      console.warn("Cloudflare Job Aggregator detailed query failed, falling back to local storage:", err);
+    }
+
     await simulateDelay();
 
     const allJobs = getData('jobs') || [];

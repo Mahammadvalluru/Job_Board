@@ -90,6 +90,19 @@ export default function JobDetail() {
                   <span>📍 {job.location}</span>
                   <span className="job-detail__meta-sep">•</span>
                   <span>{timeAgo(job.postedDate)}</span>
+                  {job.source && (
+                    <>
+                      <span className="job-detail__meta-sep">•</span>
+                      <span className="job-detail__source-portal-badge" style={{
+                        background: 'var(--color-bg-secondary, #f3f4f6)',
+                        padding: '2px 8px',
+                        borderRadius: '4px',
+                        fontSize: '0.8rem',
+                        fontWeight: '600',
+                        color: 'var(--color-accent, #4F46E5)'
+                      }}>via {job.source}</span>
+                    </>
+                  )}
                 </div>
                 <div className="job-detail__tags">
                   <span className="job-detail__tag">{job.type}</span>
@@ -109,7 +122,13 @@ export default function JobDetail() {
               ) : hasApplied ? (
                 <Button variant="secondary" disabled>✓ Already Applied</Button>
               ) : (
-                <Button variant="primary" size="lg" onClick={() => navigate(`/apply/${job.id}`)}>Apply Now</Button>
+                <Button variant="primary" size="lg" onClick={() => {
+                  if (job.applyUrl && (job.applyUrl.startsWith('http://') || job.applyUrl.startsWith('https://'))) {
+                    window.open(job.applyUrl, '_blank');
+                  } else {
+                    navigate(`/apply/${job.id}`);
+                  }
+                }}>Apply Now</Button>
               )}
               <Button variant="ghost" onClick={() => toggleBookmark(job.id)}>
                 {isBookmarked(job.id) ? '❤️' : '🤍'} Save
@@ -221,7 +240,13 @@ export default function JobDetail() {
         {!isOwner && !hasApplied && (
           <div className="job-detail__mobile-cta">
             <span className="job-detail__mobile-salary">{formatSalary(job.salaryMin, job.salaryMax)}</span>
-            <Button variant="primary" onClick={() => navigate(`/apply/${job.id}`)}>Apply Now</Button>
+            <Button variant="primary" onClick={() => {
+              if (job.applyUrl && (job.applyUrl.startsWith('http://') || job.applyUrl.startsWith('https://'))) {
+                window.open(job.applyUrl, '_blank');
+              } else {
+                navigate(`/apply/${job.id}`);
+              }
+            }}>Apply Now</Button>
           </div>
         )}
       </div>

@@ -25,11 +25,11 @@ export default function Header() {
     setTheme((prev) => (prev === 'light' ? 'dark' : 'light'));
   };
 
-  const handleLogout = () => {
-    logout();
+  const handleLogout = async () => {
     setDropdownOpen(false);
     setMobileOpen(false);
-    navigate('/');
+    await logout();
+    navigate('/login');
   };
 
   const closeMobile = () => setMobileOpen(false);

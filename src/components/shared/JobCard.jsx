@@ -17,11 +17,13 @@ export default function JobCard({ job, className = '' }) {
           style={{ backgroundColor: job.companyColor || '#4F46E5' }}
           aria-hidden="true"
         >
-          {job.company?.charAt(0) || '?'}
+          {job.company?.name?.charAt(0) || (typeof job.company === 'string' ? job.company.charAt(0) : '?')}
         </div>
         <div className="job-card__meta">
           <Link to={`/jobs/${job.id}`} className="job-card__title">{job.title}</Link>
-          <Link to={`/company/${job.companyId}`} className="job-card__company">{job.company}</Link>
+          <Link to={`/company/${job.companyId}`} className="job-card__company">
+            {job.company?.name || (typeof job.company === 'string' ? job.company : 'Unknown Company')}
+          </Link>
         </div>
         <button
           className={`job-card__bookmark ${bookmarked ? 'job-card__bookmark--active' : ''}`}
@@ -43,7 +45,14 @@ export default function JobCard({ job, className = '' }) {
         ))}
       </div>
       <div className="job-card__footer">
-        <span className="job-card__time">{timeAgo(job.postedDate)}</span>
+        <span className="job-card__time">
+          {timeAgo(job.postedDate)}
+          {job.source && (
+            <span className="job-card__source-portal">
+              via <strong>{job.source}</strong>
+            </span>
+          )}
+        </span>
         <Link to={`/jobs/${job.id}`} className="job-card__link">View Details →</Link>
       </div>
     </article>

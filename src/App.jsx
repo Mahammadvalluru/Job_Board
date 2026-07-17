@@ -131,8 +131,11 @@ function App() {
           <BookmarkProvider>
             <Routes>
               <Route element={<AppLayout />}>
-                {/* Public Routes */}
-                <Route path="/" element={<Home />} />
+                <Route path="/" element={
+                  <ProtectedRoute>
+                    <Home />
+                  </ProtectedRoute>
+                } />
                 <Route path="/jobs" element={<JobSearch />} />
                 <Route path="/jobs/:id" element={<JobDetail />} />
                 <Route path="/company/:id" element={<CompanyProfile />} />

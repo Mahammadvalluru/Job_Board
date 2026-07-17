@@ -1,6 +1,6 @@
 .filter-bar {
-  background: #fff;
-  border: 1px solid var(--color-gray-200, #E5E7EB);
+  background: var(--bg-primary);
+  border: 1px solid var(--border-color);
   border-radius: var(--radius-lg, 12px);
   padding: 1.25rem;
 }
@@ -10,11 +10,11 @@
 }
 .filter-bar__title {
   font-size: 1rem; font-weight: 700; margin: 0;
-  color: var(--color-gray-800, #1F2937);
+  color: var(--text-primary);
 }
 .filter-bar__clear {
   background: none; border: none; font-size: 0.8125rem;
-  color: var(--color-primary, #4F46E5); cursor: pointer;
+  color: var(--color-accent); cursor: pointer;
   font-weight: 500; padding: 0; font-family: inherit;
 }
 .filter-bar__clear:hover { text-decoration: underline; }

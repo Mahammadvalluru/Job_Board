@@ -30,7 +30,7 @@ export const authService = {
     }
 
     const safeUser = sanitizeUser(user);
-    setData('currentUser', safeUser);
+    sessionStorage.setItem('currentUser', JSON.stringify(safeUser));
     return safeUser;
   },
 
@@ -89,7 +89,7 @@ export const authService = {
     setData('users', users);
 
     const safeUser = sanitizeUser(newUser);
-    setData('currentUser', safeUser);
+    sessionStorage.setItem('currentUser', JSON.stringify(safeUser));
     return safeUser;
   },
 
@@ -97,7 +97,7 @@ export const authService = {
    * Log out the current user.
    */
   async logout() {
-    localStorage.removeItem('currentUser');
+    sessionStorage.removeItem('currentUser');
   },
 
   /**
@@ -105,7 +105,8 @@ export const authService = {
    * Returns null if no session exists.
    */
   getCurrentUser() {
-    return getData('currentUser');
+    const user = sessionStorage.getItem('currentUser');
+    return user ? JSON.parse(user) : null;
   },
 
   /**
@@ -125,11 +126,14 @@ export const authService = {
     setData('users', users);
 
     // Update the session too
-    const currentUser = getData('currentUser');
-    if (currentUser && currentUser.id === userId) {
-      const updatedSession = sanitizeUser(users[idx]);
-      setData('currentUser', updatedSession);
-      return updatedSession;
+    const currentUserStr = sessionStorage.getItem('currentUser');
+    if (currentUserStr) {
+      const currentUser = JSON.parse(currentUserStr);
+      if (currentUser.id === userId) {
+        const updatedSession = sanitizeUser(users[idx]);
+        sessionStorage.setItem('currentUser', JSON.stringify(updatedSession));
+        return updatedSession;
+      }
     }
 
     return sanitizeUser(users[idx]);
