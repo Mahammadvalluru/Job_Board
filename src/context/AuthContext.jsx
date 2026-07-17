@@ -76,6 +76,19 @@ export function AuthProvider({ children }) {
     }
   }, []);
 
+  // ── Login Google ──────────────────────────────────────
+  const loginGoogle = useCallback(async (email, name, role) => {
+    dispatch({ type: AUTH_LOADING });
+    try {
+      const user = await authService.loginOrRegisterGoogle(email, name, role);
+      dispatch({ type: AUTH_SUCCESS, payload: user });
+      return user;
+    } catch (err) {
+      dispatch({ type: AUTH_ERROR, payload: err.message });
+      throw err;
+    }
+  }, []);
+
   // ── Logout ────────────────────────────────────────────
   const logout = useCallback(async () => {
     await authService.logout();
@@ -106,6 +119,7 @@ export function AuthProvider({ children }) {
     error: state.error,
     login,
     register,
+    loginGoogle,
     logout,
     updateProfile,
   };

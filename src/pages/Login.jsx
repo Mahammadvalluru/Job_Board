@@ -7,7 +7,7 @@ import Input from '../components/ui/Input';
 import './Login.css';
 
 export default function Login() {
-  const { login, register } = useAuth();
+  const { login, loginGoogle } = useAuth();
   const { showToast } = useToast();
   const navigate = useNavigate();
   const location = useLocation();
@@ -35,26 +35,7 @@ export default function Login() {
       const { user: verifiedUser } = await verifyRes.json();
       const { email, name } = verifiedUser;
 
-      let user;
-      if (email === 'sarah.j@gmail.com' || email === 'sarah@example.com') {
-        user = await login('sarah@example.com', 'password123');
-      } else if (email === 'hr@technova.com') {
-        user = await login('hr@technova.com', 'password123');
-      } else {
-        try {
-          user = await login(email, 'google_auth_bypass_12345');
-        } catch (e) {
-          user = await register({
-            email,
-            password: 'google_auth_bypass_12345',
-            name,
-            role,
-            companyName: role === 'employer' ? 'Google Authenticated Co' : '',
-            phone: 'Google Auth',
-            location: 'Remote'
-          });
-        }
-      }
+      const user = await loginGoogle(email, name, role);
       showToast(`Welcome back, ${user.name}!`, 'success');
       const targetPath = from !== '/' ? from : user.role === 'employer' ? '/employer/dashboard' : '/seeker/dashboard';
       navigate(targetPath, { replace: true });

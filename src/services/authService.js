@@ -94,6 +94,60 @@ export const authService = {
   },
 
   /**
+   * Log in or register a Google-authenticated user.
+   * If a user exists with the email, sanitize and log them in (sessionStorage).
+   * Otherwise, create a new user profile with Google defaults.
+   */
+  async loginOrRegisterGoogle(email, name, role) {
+    await simulateDelay();
+    
+    const users = getData('users') || [];
+    let user = users.find((u) => u.email.toLowerCase() === email.toLowerCase());
+    
+    if (!user) {
+      let companyId = null;
+      if (role === 'employer') {
+        const companies = getData('companies') || [];
+        const newCompany = {
+          id: generateId('c'),
+          name: `${name}'s Company`,
+          logo: null,
+          industry: '',
+          size: '',
+          founded: new Date().getFullYear(),
+          website: '',
+          description: '',
+          location: 'Remote',
+          benefits: [],
+        };
+        companies.push(newCompany);
+        setData('companies', companies);
+        companyId = newCompany.id;
+      }
+      
+      user = {
+        id: generateId('u'),
+        email,
+        password: 'google_auth_bypass_12345',
+        name,
+        role: role || 'seeker',
+        phone: 'Google Auth',
+        location: 'Remote',
+        bio: '',
+        avatarColor: `#${Math.floor(Math.random() * 0xffffff).toString(16).padStart(6, '0')}`,
+        ...(role === 'employer' ? { companyId, title: '' } : { skills: [], experience: [], education: [], resumeFileName: '' })
+      };
+      
+      users.push(user);
+      setData('users', users);
+    }
+    
+    const safeUser = sanitizeUser(user);
+    sessionStorage.setItem('currentUser', JSON.stringify(safeUser));
+    return safeUser;
+  },
+
+  /**
    * Log out the current user.
    */
   async logout() {
