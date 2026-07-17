@@ -1,0 +1,8 @@
+{
+  "rewrites": [
+    {
+      "source": "/((?!assets/|favicon.ico|mock-google-login.html).*)",
+      "destination": "/index.html"
+    }
+  ]
+}
