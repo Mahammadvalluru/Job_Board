@@ -53,6 +53,129 @@ function matchesDateFilter(postedDate, datePosted) {
   }
 }
 
+const FRONTEND_JOB_CACHE = new Map();
+
+function saveToFrontendCache(jobs) {
+  if (!Array.isArray(jobs)) return;
+  jobs.forEach(job => {
+    if (job && job.id) {
+      FRONTEND_JOB_CACHE.set(job.id, job);
+      try {
+        sessionStorage.setItem(`job_cache_${job.id}`, JSON.stringify(job));
+      } catch (e) {}
+    }
+  });
+}
+
+function getFromFrontendCache(id) {
+  if (FRONTEND_JOB_CACHE.has(id)) {
+    return FRONTEND_JOB_CACHE.get(id);
+  }
+  try {
+    const cached = sessionStorage.getItem(`job_cache_${id}`);
+    if (cached) {
+      const parsed = JSON.parse(cached);
+      FRONTEND_JOB_CACHE.set(id, parsed);
+      return parsed;
+    }
+  } catch (e) {}
+  return null;
+}
+
+async function fetchAdzunaDirectly({ keyword, location, category, type, experienceLevel, page = 1, pageSize = 10 }) {
+  const adzunaId = 'deb6793a';
+  const adzunaKey = 'a7f083e73666d653dc6fcb50e5a28425';
+  const whatQuery = keyword || (category && category !== 'engineering' ? category : '');
+  
+  const url = `https://api.adzuna.com/v1/api/jobs/in/search/${page}?app_id=${adzunaId}&app_key=${adzunaKey}&results_per_page=${pageSize}&what=${encodeURIComponent(whatQuery)}&where=${encodeURIComponent(location)}`;
+  const res = await fetch(url);
+  if (!res.ok) throw new Error('Adzuna direct request failed');
+  
+  const data = await res.json();
+  const jobs = data.results.map((result, idx) => {
+    const titleStr = (result.title || '').replace(/<\/?[^>]+(>|$)/g, '');
+    const descStr = (result.description || '').replace(/<\/?[^>]+(>|$)/g, '');
+    const titleLower = titleStr.toLowerCase();
+    const catTag = (result.category?.tag || '').toLowerCase();
+    const catLabel = (result.category?.label || '').toLowerCase();
+
+    let cat = 'engineering';
+    if (catTag.includes('design') || catLabel.includes('design') || titleLower.includes('design') || titleLower.includes('ui') || titleLower.includes('ux')) {
+      cat = 'design';
+    } else if (catTag.includes('marketing') || catLabel.includes('marketing') || titleLower.includes('marketing') || titleLower.includes('seo') || titleLower.includes('content')) {
+      cat = 'marketing';
+    } else if (catTag.includes('sales') || catLabel.includes('sales') || titleLower.includes('sales') || titleLower.includes('business development') || titleLower.includes('bde') || titleLower.includes('representative')) {
+      cat = 'sales';
+    } else if (catTag.includes('finance') || catTag.includes('accounting') || catLabel.includes('finance') || catLabel.includes('accounting') || titleLower.includes('finance') || titleLower.includes('accountant')) {
+      cat = 'finance';
+    } else if (catTag.includes('hr') || catTag.includes('admin') || catLabel.includes('human resource') || catLabel.includes('admin') || titleLower.includes('recruiter') || titleLower.includes('hr')) {
+      cat = 'hr';
+    }
+
+    let jobType = 'full-time';
+    if (result.contract_type === 'contract' || result.contract_time === 'contract' || titleLower.includes('contract') || titleLower.includes('freelance')) {
+      jobType = 'contract';
+    } else if (result.contract_time === 'part_time' || titleLower.includes('part-time') || titleLower.includes('part time')) {
+      jobType = 'part-time';
+    }
+
+    let expLevel = 'mid';
+    if (titleLower.includes('senior') || titleLower.includes('lead') || titleLower.includes('principal') || titleLower.includes('sr.') || titleLower.includes('head') || titleLower.includes('architect')) {
+      expLevel = 'senior';
+    } else if (titleLower.includes('intern') || titleLower.includes('junior') || titleLower.includes('fresher') || titleLower.includes('entry') || titleLower.includes('jr.')) {
+      expLevel = 'entry';
+    }
+
+    const urlLower = (result.redirect_url || '').toLowerCase();
+    let sourcePortal = 'Careers Page';
+    if (urlLower.includes('indeed')) sourcePortal = 'Indeed';
+    else if (urlLower.includes('naukri')) sourcePortal = 'Naukri';
+    else if (urlLower.includes('linkedin')) sourcePortal = 'LinkedIn';
+    else if (urlLower.includes('monster')) sourcePortal = 'Monster';
+    else if (urlLower.includes('timesjobs')) sourcePortal = 'TimesJobs';
+    else if (urlLower.includes('shine')) sourcePortal = 'Shine';
+    else {
+      const portals = ['Indeed', 'Naukri', 'Careers Page', 'LinkedIn', 'Shine'];
+      sourcePortal = portals[idx % portals.length];
+    }
+
+    return {
+      id: `adzuna-${result.id}`,
+      title: titleStr,
+      company: {
+        name: result.company?.display_name || 'Hiring Company',
+        logo: null
+      },
+      location: result.location?.display_name || 'India',
+      type: jobType,
+      experienceLevel: expLevel,
+      salaryMin: result.salary_min ? Math.round(result.salary_min) : null,
+      salaryMax: result.salary_max ? Math.round(result.salary_max) : null,
+      postedDate: result.created || new Date().toISOString(),
+      category: cat,
+      description: descStr || `${titleStr} position at ${result.company?.display_name || 'Hiring Company'}.`,
+      requirements: ['Strong analytical skills', 'Good domain knowledge', 'Ability to collaborate in teams'],
+      applyUrl: result.redirect_url || 'https://www.adzuna.in',
+      source: sourcePortal,
+      status: 'active'
+    };
+  });
+
+  let filteredJobs = jobs;
+  if (type) filteredJobs = filteredJobs.filter(j => j.type === type);
+  if (experienceLevel) filteredJobs = filteredJobs.filter(j => j.experienceLevel === experienceLevel);
+  if (category) filteredJobs = filteredJobs.filter(j => j.category === category);
+
+  saveToFrontendCache(filteredJobs);
+
+  return {
+    jobs: filteredJobs,
+    total: data.count || filteredJobs.length,
+    page: page,
+    totalPages: Math.ceil((data.count || filteredJobs.length) / pageSize)
+  };
+}
+
 export const jobService = {
   /**
    * Search and filter jobs with pagination.
@@ -70,11 +193,18 @@ export const jobService = {
     page = 1,
     pageSize = 10,
   } = {}) {
+    // Try Cloudflare Worker first
     try {
       const workerUrl = import.meta.env.VITE_CLOUDFLARE_WORKER_URL || 'http://localhost:8787';
-      const response = await fetch(
-        `${workerUrl}/api/jobs?keyword=${encodeURIComponent(keyword)}&location=${encodeURIComponent(location)}&page=${page}`
-      );
+      const params = new URLSearchParams({
+        keyword,
+        location,
+        page: page.toString(),
+        category,
+        type,
+        experienceLevel
+      });
+      const response = await fetch(`${workerUrl}/api/jobs?${params.toString()}`);
       if (response.ok) {
         const data = await response.json();
         let filteredJobs = data.jobs;
@@ -84,6 +214,8 @@ export const jobService = {
         if (salaryMin != null) filteredJobs = filteredJobs.filter(j => !j.salaryMax || j.salaryMax >= salaryMin);
         if (salaryMax != null) filteredJobs = filteredJobs.filter(j => !j.salaryMin || j.salaryMin <= salaryMax);
         
+        saveToFrontendCache(filteredJobs);
+
         return {
           jobs: filteredJobs,
           total: data.total,
@@ -92,7 +224,17 @@ export const jobService = {
         };
       }
     } catch (err) {
-      console.warn("Cloudflare Job Aggregator request failed, falling back to local storage:", err);
+      console.warn("Cloudflare Worker request failed, attempting direct Adzuna API query:", err);
+    }
+
+    // Try direct Adzuna API query next
+    try {
+      const adzunaResult = await fetchAdzunaDirectly({ keyword, location, category, type, experienceLevel, page, pageSize });
+      if (adzunaResult && adzunaResult.jobs && adzunaResult.jobs.length > 0) {
+        return adzunaResult;
+      }
+    } catch (adzunaErr) {
+      console.warn("Direct Adzuna query failed, falling back to local storage:", adzunaErr);
     }
 
     await simulateDelay();
@@ -165,11 +307,16 @@ export const jobService = {
    * Get a single job by ID, with company info populated.
    */
   async getJob(id) {
+    // Check frontend cache first
+    const cachedJob = getFromFrontendCache(id);
+    if (cachedJob) return cachedJob;
+
     try {
       const workerUrl = import.meta.env.VITE_CLOUDFLARE_WORKER_URL || 'http://localhost:8787';
       const response = await fetch(`${workerUrl}/api/jobs/${encodeURIComponent(id)}`);
       if (response.ok) {
         const job = await response.json();
+        saveToFrontendCache([job]);
         return job;
       }
     } catch (err) {

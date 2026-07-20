@@ -253,23 +253,57 @@ export default {
         const page = parseInt(url.searchParams.get("page") || "1", 10);
         const pageSize = 10;
 
+        const categoryParam = url.searchParams.get("category") || "";
+        const typeParam = url.searchParams.get("type") || "";
+        const expParam = url.searchParams.get("experienceLevel") || "";
+
         const adzunaId = env.ADZUNA_APP_ID;
         const adzunaKey = env.ADZUNA_APP_KEY;
 
         // If credentials are configured, query Adzuna API for India
         if (adzunaId && adzunaKey && !adzunaId.includes("YOUR_")) {
           try {
-            const adzunaQueryUrl = `https://api.adzuna.com/v1/api/jobs/in/search/${page}?app_id=${adzunaId}&app_key=${adzunaKey}&results_per_page=${pageSize}&what=${encodeURIComponent(keyword)}&where=${encodeURIComponent(location)}`;
+            const whatQuery = keyword || (categoryParam !== "engineering" ? categoryParam : "");
+            const adzunaQueryUrl = `https://api.adzuna.com/v1/api/jobs/in/search/${page}?app_id=${adzunaId}&app_key=${adzunaKey}&results_per_page=${pageSize}&what=${encodeURIComponent(whatQuery)}&where=${encodeURIComponent(location)}`;
             const adzunaRes = await fetch(adzunaQueryUrl);
 
             if (adzunaRes.ok) {
               const data = await adzunaRes.json();
               
               const jobs = data.results.map((result, idx) => {
-                const category = keyword.toLowerCase().includes("design") ? "design" : 
-                                 keyword.toLowerCase().includes("marketing") ? "marketing" :
-                                 keyword.toLowerCase().includes("sales") ? "sales" : "engineering";
+                const titleStr = (result.title || "").replace(/<\/?[^>]+(>|$)/g, "");
+                const descStr = (result.description || "").replace(/<\/?[^>]+(>|$)/g, "");
+                const titleLower = titleStr.toLowerCase();
+                const catTag = (result.category?.tag || "").toLowerCase();
+                const catLabel = (result.category?.label || "").toLowerCase();
+
+                let category = "engineering";
+                if (catTag.includes("design") || catLabel.includes("design") || titleLower.includes("design") || titleLower.includes("ui") || titleLower.includes("ux")) {
+                  category = "design";
+                } else if (catTag.includes("marketing") || catLabel.includes("marketing") || titleLower.includes("marketing") || titleLower.includes("seo") || titleLower.includes("content")) {
+                  category = "marketing";
+                } else if (catTag.includes("sales") || catLabel.includes("sales") || titleLower.includes("sales") || titleLower.includes("business development") || titleLower.includes("bde") || titleLower.includes("representative")) {
+                  category = "sales";
+                } else if (catTag.includes("finance") || catTag.includes("accounting") || catLabel.includes("finance") || catLabel.includes("accounting") || titleLower.includes("finance") || titleLower.includes("accountant")) {
+                  category = "finance";
+                } else if (catTag.includes("hr") || catTag.includes("admin") || catLabel.includes("human resource") || catLabel.includes("admin") || titleLower.includes("recruiter") || titleLower.includes("hr")) {
+                  category = "hr";
+                }
                 
+                let jobType = "full-time";
+                if (result.contract_type === "contract" || result.contract_time === "contract" || titleLower.includes("contract") || titleLower.includes("freelance")) {
+                  jobType = "contract";
+                } else if (result.contract_time === "part_time" || titleLower.includes("part-time") || titleLower.includes("part time")) {
+                  jobType = "part-time";
+                }
+
+                let expLevel = "mid";
+                if (titleLower.includes("senior") || titleLower.includes("lead") || titleLower.includes("principal") || titleLower.includes("sr.") || titleLower.includes("head") || titleLower.includes("architect")) {
+                  expLevel = "senior";
+                } else if (titleLower.includes("intern") || titleLower.includes("junior") || titleLower.includes("fresher") || titleLower.includes("entry") || titleLower.includes("jr.")) {
+                  expLevel = "entry";
+                }
+
                 const urlLower = result.redirect_url ? result.redirect_url.toLowerCase() : "";
                 let sourcePortal = "Careers Page";
                 if (urlLower.includes("indeed")) sourcePortal = "Indeed";
@@ -285,23 +319,23 @@ export default {
 
                 const mappedJob = {
                   id: `adzuna-${result.id}`,
-                  title: result.title.replace(/<\/?[^>]+(>|$)/g, ""), // strip html tags
+                  title: titleStr,
                   company: {
-                    name: result.company.display_name,
+                    name: result.company?.display_name || "Hiring Company",
                     logo: null
                   },
-                  location: result.location.display_name,
-                  type: result.contract_type === "contract" ? "contract" : "full-time",
-                  experienceLevel: result.title.toLowerCase().includes("senior") ? "senior" : 
-                                   result.title.toLowerCase().includes("intern") || result.title.toLowerCase().includes("junior") ? "entry" : "mid",
-                  salaryMin: result.salary_min || null,
-                  salaryMax: result.salary_max || null,
+                  location: result.location?.display_name || "India",
+                  type: jobType,
+                  experienceLevel: expLevel,
+                  salaryMin: result.salary_min ? Math.round(result.salary_min) : null,
+                  salaryMax: result.salary_max ? Math.round(result.salary_max) : null,
                   postedDate: result.created || new Date().toISOString(),
                   category: category,
-                  description: result.description.replace(/<\/?[^>]+(>|$)/g, ""),
+                  description: descStr || `${titleStr} position at ${result.company?.display_name || 'Hiring Company'}.`,
                   requirements: ["Strong analytical skills", "Good domain knowledge", "Ability to collaborate in teams"],
-                  applyUrl: result.redirect_url,
-                  source: sourcePortal
+                  applyUrl: result.redirect_url || "https://www.adzuna.in",
+                  source: sourcePortal,
+                  status: "active"
                 };
 
                 // Cache the mapped job details
@@ -310,9 +344,14 @@ export default {
                 return mappedJob;
               });
 
+              let filteredJobs = jobs;
+              if (typeParam) filteredJobs = filteredJobs.filter(j => j.type === typeParam);
+              if (expParam) filteredJobs = filteredJobs.filter(j => j.experienceLevel === expParam);
+              if (categoryParam) filteredJobs = filteredJobs.filter(j => j.category === categoryParam);
+
               return new Response(
                 JSON.stringify({
-                  jobs: jobs,
+                  jobs: filteredJobs,
                   total: data.count || jobs.length,
                   page: page,
                   totalPages: Math.ceil((data.count || jobs.length) / pageSize)
